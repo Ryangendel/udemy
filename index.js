@@ -1,9 +1,31 @@
 const express = require ("express");
+const mongoose = require('mongoose');
+const cookieSession = require('cookie-session')
+const passport = require('passport')
+const keys = require ("./config/keys")
+require('./models/user')
+require("./services/passport") 
+
+const authRoutes = require('./routes/authRoutes')
 const app = express();
 
-app.get('/', (req, res) => {
-    res.send({hi:"sup bitch"})
-});
+app.use(
+    cookieSession({
+        maxAge: 30*24*60*60*1000,
+        keys:[keys.cookieKey]
+    })
+)
+app.use(passport.initialize());
+app.use(passport.session())
+// mongoose.connect("mongodb://rgendel:password1@ds115360.mlab.com:15360/emaily_dev123", { useNewUrlParser: true });
+
+mongoose.connect(keys.mongoURI, {useNewUrlParser:true})
+// mongoose.connect("{useNewUrlParser: true }")
+
+authRoutes(app)
+
+// or require('./routes/authRoutes')(app)
+
 
 const PORT = process.env.PORT || 5000
 
